@@ -149,9 +149,6 @@ module.exports = function (webpackEnv) {
         },
         {
           loader: require.resolve(preProcessor),
-          options: {
-            sourceMap: true,
-          },
         }
       );
     }
@@ -500,6 +497,10 @@ module.exports = function (webpackEnv) {
             // By default we support SASS Modules with the
             // extensions .module.scss or .module.sass
             {
+              test: /\.less$/,
+              use: getStyleLoaders({}, 'less-loader'),
+            },
+            {
               test: sassRegex,
               exclude: sassModuleRegex,
               use: getStyleLoaders(
@@ -552,8 +553,9 @@ module.exports = function (webpackEnv) {
             },
             // ** STOP ** Are you adding a new loader?
             // Make sure to add the new loader(s) before the "file" loader.
+            
           ],
-        },
+        }
       ],
     },
     plugins: [
