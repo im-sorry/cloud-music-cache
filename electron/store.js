@@ -12,7 +12,9 @@ const store = new Store({
 });
 
 const getDefaultSrcDir = () => {
-  const src_dir = isWindows ? '' : `${os.homedir()}/Library/Containers/com.netease.163music/Data/Caches/online_play_cache`;
+  const src_dir = isWindows
+    ? `${os.homedir()}\\AppData\\Local\\Netease\\CloudMusic\\Cache\\Cache`
+    : `${os.homedir()}/Library/Containers/com.netease.163music/Data/Caches/online_play_cache`;
   if (!checkDirUseful(src_dir)) return '';
   return src_dir;
 }
@@ -24,8 +26,18 @@ const defaultStore = {
 }
 
 const getLocalVals = () => {
-  return store.get(StorageKey, defaultStore);
+  let { src_dir, target_dir, minute } = store.get(StorageKey, defaultStore);
+  if (src_dir && !checkDirUseful(src_dir)) src_dir = '';
+  else src_dir = defaultStore.src_dir;
+  if (target_dir && !checkDirUseful(target_dir)) target_dir = '';
+  else target_dir = defaultStore.target_dir;
+  return {
+    src_dir,
+    target_dir,
+    minute
+  }
 }
+
 const setLocalVals = valsJson => {
   const localVals = getLocalVals();
   store.set(StorageKey, Object.assign({}, localVals, valsJson));

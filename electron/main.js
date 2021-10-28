@@ -1,7 +1,7 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron')
 const url = require('url');
 const path = require('path')
-const env = process.env.ENV || 'prod'
+const env = ((process.argv[2] || '').match(/--env=([A-z]+)/) || ['prod'])[1];
 const isDev = env === 'dev';
 
 function createWindow () {
@@ -25,19 +25,19 @@ function createWindow () {
 
   // 初始化ipc通信
   // 读取src dir
-  ipcMain.on('read-src-dir', (event, dir = '') => {
+  ipcMain.on('read-src-dir', (event, dir = []) => {
     const dirs = dialog.showOpenDialogSync(win, {
       title: '选择读取目录',
-      defaultPath: dir,
+      defaultPath: dir[0] || 0,
       properties: ['openDirectory', 'showHiddenFiles']
     })
     event.returnValue = dirs;
   });
   // 读取target dir
-  ipcMain.on('read-target-dir', (event, dir = '') => {
+  ipcMain.on('read-target-dir', (event, dir = []) => {
     const dirs = dialog.showOpenDialogSync(win, {
       title: '选择存储目录',
-      defaultPath: dir,
+      defaultPath: dir[0] || '',
       properties: ['openDirectory', 'showHiddenFiles']
     })
     event.returnValue = dirs;
@@ -53,15 +53,20 @@ function createWindow () {
   });
 }
 
-app.whenReady().then(() => {
-  createWindow()
+app
+  .whenReady()
+  .then(() => {
+    createWindow()
 
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow()
-    }
+    app.on('activate', () => {
+      if (BrowserWindow.getAllWindows().length === 0) {
+        createWindow()
+      }
+    })
   })
-})
+  .then(() => {
+    // new Notification({title: '123', body: '456'}).show()
+  })
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
