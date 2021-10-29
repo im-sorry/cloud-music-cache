@@ -27,10 +27,10 @@ const defaultStore = {
 
 const getLocalVals = () => {
   let { src_dir, target_dir, minute } = store.get(StorageKey, defaultStore);
-  if (src_dir && !checkDirUseful(src_dir)) src_dir = '';
-  else src_dir = defaultStore.src_dir;
-  if (target_dir && !checkDirUseful(target_dir)) target_dir = '';
-  else target_dir = defaultStore.target_dir;
+  if (!src_dir) src_dir = defaultStore.src_dir;
+  else if (!checkDirUseful(src_dir)) src_dir = '';
+  if (!target_dir) target_dir = defaultStore.target_dir;
+  else if (!checkDirUseful(target_dir)) target_dir = '';
   return {
     src_dir,
     target_dir,
@@ -40,7 +40,9 @@ const getLocalVals = () => {
 
 const setLocalVals = valsJson => {
   const localVals = getLocalVals();
-  store.set(StorageKey, Object.assign({}, localVals, valsJson));
+  const newVals = Object.assign({}, localVals, valsJson);
+  console.log(newVals, 'newVals');
+  store.set(StorageKey, newVals);
 }
 
 module.exports = {

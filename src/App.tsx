@@ -12,7 +12,7 @@ const _ = window as unknown as MyWindow;
 
 const { Item } = Form;
 const { Option } = Select;
-const minutes = [2, 3, 4, 5, 10, 30, 60];
+const minutes = [2, 5, 10, 30, 60];
 
 function App() {
   const [selectedKey, setKey] = useState('cache');
@@ -38,7 +38,7 @@ function App() {
               <Button
                 disabled={isStart}
                 onClick={() => {
-                  const srcdir = _.electron.ipcRenderer.sendSync('read-src-dir', src_dir);
+                  const [srcdir] = _.electron.ipcRenderer.sendSync('read-src-dir', src_dir);
                   if (srcdir) {
                     if (srcdir !== src_dir) {
                       _.electron.setLocalVals({ src_dir: srcdir });
@@ -55,7 +55,7 @@ function App() {
               <Button
                 disabled={isStart}
                 onClick={() => {
-                  const tardir = _.electron.ipcRenderer.sendSync('read-target-dir', target_dir);
+                  const [tardir] = _.electron.ipcRenderer.sendSync('read-target-dir', target_dir);
                   if (tardir) {
                     if (target_dir !== tardir) {
                       _.electron.setLocalVals({ target_dir: tardir });
