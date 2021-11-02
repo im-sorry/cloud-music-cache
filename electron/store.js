@@ -41,7 +41,6 @@ const getLocalVals = () => {
 const setLocalVals = valsJson => {
   const localVals = getLocalVals();
   const newVals = Object.assign({}, localVals, valsJson);
-  console.log(newVals, 'newVals');
   store.set(StorageKey, newVals);
 }
 

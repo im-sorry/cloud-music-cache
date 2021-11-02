@@ -1,14 +1,14 @@
 const fs = require('fs')
 const path = require('path')
 const { getLikeIdsSet } = require('./fetch_like_list');
-const { getIdFromFilename, output_like, output, targetPath } = require('./utils');
+const { getIdFromFilename } = require('./utils');
 
 function getOldFiles(path) {
   return fs.readdirSync(path);
 }
 
-async function main() {
-  const likeIdSet = await getLikeIdsSet();
+async function main(output, output_like, uid, MUSIC_U) {
+  const likeIdSet = await getLikeIdsSet(uid, MUSIC_U);
   const oldLikeFiles = getOldFiles(output_like);
   const oldLikeFilesSet = new Set(oldLikeFiles.map(getIdFromFilename));
   const oldDislikeFiles = getOldFiles(output);

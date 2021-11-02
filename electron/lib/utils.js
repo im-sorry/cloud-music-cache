@@ -1,14 +1,18 @@
-const output = "/Users/bytedance/www/open/netease-music-cache-decoder/musics";
-const output_like = "/Users/bytedance/www/open/netease-music-cache-decoder/like_musics";
-const targetPath = "/Users/bytedance/Library/Containers/com.netease.163music/Data/Caches/online_play_cache";
+const fs = require('fs')
+const output = "D:\\download\\musics\\dislike";
+const output_like = "D:\\download\\musics\\like";
+const targetPath = "C:\\Users\\han\\AppData\\Local\\Netease\\CloudMusic\\Cache\\Cache";
 
 function getIdFromFilename(filename){
   return filename.split('-').pop().split('.')[0];
 }
-
+function makeSureDir(dir) {
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir);
+}
 module.exports = {
   getIdFromFilename,
   output,
   output_like,
-  targetPath
+  targetPath,
+  makeSureDir,
 }

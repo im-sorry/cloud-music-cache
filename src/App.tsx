@@ -12,7 +12,7 @@ const _ = window as unknown as MyWindow;
 
 const { Item } = Form;
 const { Option } = Select;
-const minutes = [2, 5, 10, 30, 60];
+const minutes = [2, 5, 10, 30];
 
 function App() {
   const [selectedKey, setKey] = useState('cache');
@@ -34,43 +34,50 @@ function App() {
         <div className="cache">
           <Form>
             <Item label="读取路径">
-              <Input value={src_dir} />
-              <Button
-                disabled={isStart}
-                onClick={() => {
-                  const [srcdir] = _.electron.ipcRenderer.sendSync('read-src-dir', src_dir);
-                  if (srcdir) {
-                    if (srcdir !== src_dir) {
-                      _.electron.setLocalVals({ src_dir: srcdir });
-                      setSrcDir(srcdir);
+              <div className="table-content">
+                <Input value={src_dir} />
+                <Button
+                  disabled={isStart}
+                  onClick={() => {
+                    const [srcdir] = _.electron.ipcRenderer.sendSync('read-src-dir', src_dir);
+                    if (srcdir) {
+                      if (srcdir !== src_dir) {
+                        _.electron.setLocalVals({ src_dir: srcdir });
+                        setSrcDir(srcdir);
+                      }
+                      message.success('更新成功');
                     }
-                    message.success('更新成功');
-                  }
-                  // 一般情况下不用校验dir，因为是用户选出来的
-                }}
-              >更改路径</Button>
+                    // 一般情况下不用校验dir，因为是用户选出来的
+                  }}
+                >更改路径</Button>
+              </div>
             </Item>
             <Item label="存储路径">
+              <div className="table-content">
               <Input value={target_dir} />
-              <Button
-                disabled={isStart}
-                onClick={() => {
-                  const [tardir] = _.electron.ipcRenderer.sendSync('read-target-dir', target_dir);
-                  if (tardir) {
-                    if (target_dir !== tardir) {
-                      _.electron.setLocalVals({ target_dir: tardir });
-                      setTargetDir(tardir);
+                <Button
+                  disabled={isStart}
+                  onClick={() => {
+                    const [tardir] = _.electron.ipcRenderer.sendSync('read-target-dir', target_dir);
+                    if (tardir) {
+                      if (target_dir !== tardir) {
+                        _.electron.setLocalVals({ target_dir: tardir });
+                        setTargetDir(tardir);
+                      }
+                      message.success('更新成功');
                     }
-                    message.success('更新成功');
-                  }
-                  // 一般情况下不用校验dir，因为是用户选出来的
-                }}
-              >更改路径</Button>
+                    // 一般情况下不用校验dir，因为是用户选出来的
+                  }}
+                >更改路径</Button>
+              </div>
             </Item>
-            <Item label="选择更新时间间隔">
+            <Item label="更新间隔">
               <Select
                 defaultValue={minute}
-                onChange={setMinute}
+                onChange={(val: number) => {
+                  setMinute(val);
+                  _.electron.setLocalVals({ minute });
+                }}
                 disabled={isStart}
               >
                 {minutes.map(m => (
@@ -81,7 +88,17 @@ function App() {
           </Form>
           <Button
             onClick={() => {
+              if (!target_dir) {
+                message.warn('请选择存储路径');
+                return;
+              }
               setIsStart(!isStart);
+              _.electron.ipcRenderer.send('start', {
+                src_dir,
+                target_dir,
+                minute,
+                isStart: !isStart,
+              });
             }}
           >
             {isStart ? '暂停' : '开始'}
