@@ -107,7 +107,13 @@ function App() {
       );
     } else if (selectedKey === 'login') {
       return (
-        <div className="login">login</div>
+        <Button
+          onClick={() => {
+            _.electron.ipcRenderer.send('get_user');
+          }}
+        >
+          登录网易云以获取你的关注音乐信息
+        </Button>
       );
     }
   }, [selectedKey, src_dir, target_dir, minute, isStart]);
