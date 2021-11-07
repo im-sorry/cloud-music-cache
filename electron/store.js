@@ -5,12 +5,6 @@ const { isWindows, checkDirUseful } = require('./utils');
 
 const StorageKey = '_cloud_cache_storage_key';
 
-const store = new Store({
-  fileExtension: 'yaml',
-  serialize: JsYaml.dump,
-  deserialize: JsYaml.load,
-});
-
 const getDefaultSrcDir = () => {
   const src_dir = isWindows
     ? `${os.homedir()}\\AppData\\Local\\Netease\\CloudMusic\\Cache\\Cache`
@@ -23,10 +17,20 @@ const defaultStore = {
   src_dir: getDefaultSrcDir(),
   target_dir: '',
   minute: 5,
+  MUSIC_U: '',
+  userId: '',
+  diff: false,
 }
 
+const store = new Store({
+  fileExtension: 'yaml',
+  serialize: JsYaml.dump,
+  deserialize: JsYaml.load,
+  defaults: defaultStore,
+});
+
 const getLocalVals = () => {
-  let { src_dir, target_dir, minute } = store.get(StorageKey, defaultStore);
+  let { src_dir, target_dir, minute, MUSIC_U = '', userId = 0, diff = false } = store.get(StorageKey, defaultStore);
   if (!src_dir) src_dir = defaultStore.src_dir;
   else if (!checkDirUseful(src_dir)) src_dir = '';
   if (!target_dir) target_dir = defaultStore.target_dir;
@@ -34,7 +38,10 @@ const getLocalVals = () => {
   return {
     src_dir,
     target_dir,
-    minute
+    minute,
+    MUSIC_U,
+    userId,
+    diff,
   }
 }
 
@@ -44,7 +51,10 @@ const setLocalVals = valsJson => {
   store.set(StorageKey, newVals);
 }
 
+const resetLocalVals = () => store.clear();
+
 module.exports = {
   getLocalVals,
   setLocalVals,
+  resetLocalVals,
 }

@@ -51,12 +51,17 @@ function getNowAt() {
 
 function startCache(src_dir, target_dir, minute, uid, MUSIC_U) {
   let nowAt = getNowAt();
-  return nodeScheduler.scheduleJob(`*/${minute} * * * *`, () => {
+  const timer = `*/${minute} * * * *`;
+  const cb = () => {
     const now = getNowAt();
     console.log(`----------------${now-nowAt}s`);
     nowAt = now;
     main(path.join(target_dir, 'dislike'), path.join(target_dir, 'like'), src_dir, uid, MUSIC_U);
-  })
+  }
+  const job = nodeScheduler.scheduleJob(timer, cb);
+  return () => {
+    nodeScheduler.cancelJob(job)
+  }
 }
 
 module.exports = startCache;

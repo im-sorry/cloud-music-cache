@@ -1,8 +1,8 @@
 // @ts-nocheck
 import React, { useEffect, useMemo, useState } from 'react';
 import './App.less';
-import { Menu, Form, Input, Button, Select, message } from 'antd';
-import { DownloadOutlined, LoginOutlined } from '@ant-design/icons';
+import { Menu, Form, Input, Button, Select, message, Checkbox, Tooltip } from 'antd';
+import { DownloadOutlined, LoginOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import 'antd/dist/antd.css';
 
 interface MyWindow extends Window {
@@ -20,19 +20,34 @@ function App() {
   const [target_dir, setTargetDir] = useState('');
   const [minute, setMinute] = useState(5);
   const [isStart, setIsStart] = useState(false);
+  const [MUSIC_U, setMUSIC_U] = useState('');
+  const [userId, setUserId] = useState(0);
+  const [diff, setDiff] = useState(false); // 是否要把歌区分到喜欢和不喜欢，如果不区分，默认放到不喜欢目录里
+  const [shouldGetUserInfo, setShould] = useState(false);
 
   useEffect(() => {
     const localvals = _.electron.getLocalVals();
-    const { src_dir, target_dir, minute } = localvals;
+    const { src_dir, target_dir, minute, diff, MUSIC_U, userId } = localvals;
     setSrcDir(src_dir);
     setTargetDir(target_dir);
     setMinute(minute);
+    setDiff(diff);
+    setMUSIC_U(MUSIC_U);
+    setUserId(userId);
+    if (diff && (!MUSIC_U || !userId)) {
+      setShould(true);
+    }
   }, []);
   const content = useMemo(() => {
     if (selectedKey === 'cache') {
       return (
         <div className="cache">
-          <Form>
+          <Form
+            layout={{
+              labelCol: { span: 4 },
+              wrapperCol: { span: 14 },
+            }}
+          >
             <Item label="读取路径">
               <div className="table-content">
                 <Input value={src_dir} />
@@ -54,7 +69,7 @@ function App() {
             </Item>
             <Item label="存储路径">
               <div className="table-content">
-              <Input value={target_dir} />
+                <Input value={target_dir} />
                 <Button
                   disabled={isStart}
                   onClick={() => {
@@ -73,9 +88,9 @@ function App() {
             </Item>
             <Item label="更新间隔">
               <Select
-                defaultValue={minute}
-                onChange={(val: number) => {
-                  setMinute(val);
+                value={minute}
+                onChange={(minute: number) => {
+                  setMinute(minute);
                   _.electron.setLocalVals({ minute });
                 }}
                 disabled={isStart}
@@ -85,9 +100,40 @@ function App() {
                 ))}
               </Select>
             </Item>
+            <Item
+              label={(
+                <span>
+                  喜爱歌曲单独存储
+                  <Tooltip title="是否将我喜欢的歌曲和普通歌曲存储到不同文件夹(需要获取网易云登录信息)？默认会将所有歌曲存到不喜欢的文件夹中">
+                    <QuestionCircleOutlined />
+                  </Tooltip>
+                </span>
+              )}
+            >
+              <Checkbox
+                checked={diff}
+                onChange={() => {
+                  setDiff(!diff);
+                  _.electron.setLocalVals({ diff: !diff });
+                  if (!diff && (!MUSIC_U || !userId)) setShould(true);
+                }}
+              />
+            </Item>
           </Form>
           <Button
             onClick={() => {
+              if (shouldGetUserInfo) {
+                const { type, msg, MUSIC_U, userId } = _.electron.ipcRenderer.sendSync('get_user');
+                if (typeof message[type] === 'function') {
+                  message[type](msg);
+                }
+                if (type === 'success') {
+                  setMUSIC_U(MUSIC_U);
+                  setUserId(userId);
+                  setShould(false);
+                }
+                return;
+              }
               if (!target_dir) {
                 message.warn('请选择存储路径');
                 return;
@@ -101,22 +147,18 @@ function App() {
               });
             }}
           >
-            {isStart ? '暂停' : '开始'}
+            {shouldGetUserInfo ? '登录网易云获取用户信息' : isStart ? '暂停' : '开始'}
           </Button>
         </div>
       );
-    } else if (selectedKey === 'login') {
+    } else if (selectedKey === 'donation') {
       return (
-        <Button
-          onClick={() => {
-            _.electron.ipcRenderer.send('get_user');
-          }}
-        >
-          登录网易云以获取你的关注音乐信息
-        </Button>
+        <span>
+          跪求个两三块钱打车钱^_^
+        </span>
       );
     }
-  }, [selectedKey, src_dir, target_dir, minute, isStart]);
+  }, [selectedKey, src_dir, target_dir, minute, isStart, MUSIC_U, userId, diff, shouldGetUserInfo]);
   return (
     <div className="App">
       <div>
@@ -131,8 +173,8 @@ function App() {
           <Menu.Item key="cache" icon={<DownloadOutlined />}>
             缓存
           </Menu.Item>
-          <Menu.Item key="login" icon={<LoginOutlined />}>
-            登录
+          <Menu.Item key="docation" icon={<LoginOutlined />}>
+            支持作者
           </Menu.Item>
         </Menu>
       </div>
