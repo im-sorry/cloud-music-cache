@@ -149,7 +149,7 @@ function App() {
               label={
                 <span>
                   喜爱歌曲单独存储
-                  <Tooltip title="是否将我喜欢的歌曲和普通歌曲存储到不同文件夹(需要获取网易云登录信息)？默认会将所有歌曲存到不喜欢的文件夹中">
+                  <Tooltip title="是否将我喜欢的歌曲和普通歌曲存储到不同文件夹？(需要获取网易云登录信息) 默认会将所有歌曲存到不喜欢的文件夹中">
                     <QuestionCircleOutlined />
                   </Tooltip>
                 </span>

@@ -9,6 +9,7 @@ const url = require('url');
 const path = require('path');
 const startCache = require('./lib');
 const { setLocalVals } = require('./store');
+const { getUserIdFromMUSIC_U } = require('./utils');
 
 const env = ((process.argv[2] || '').match(/--env=([A-z]+)/) || ['prod'])[1];
 const isDev = env === 'dev';
@@ -104,40 +105,6 @@ function createWindow() {
       view = null;
     }
 
-    function getUserIdFromRid(rid) {
-      console.log(rid, 'rid');
-      return view.webContents.debugger
-        .sendCommand('Network.getResponseBody', {
-          requestId: rid,
-        })
-        .then((res) => {
-          const matched = res.body.match(/"userId":(\d+),/);
-          if (matched && matched[1]) userId = matched[1];
-        });
-    }
-
-    function attachDebugger() {
-      try {
-        view.webContents.debugger.attach('1.1');
-      } catch (error) {}
-      view.webContents.debugger.on('message', (e, method, params) => {
-        if (userId_DONE) return;
-        if (method === 'Network.responseReceived') {
-          if (params.response.url.indexOf('/weapi/user/setting') !== -1) {
-            let rid = params.requestId;
-            getUserIdFromRid(rid)
-              .catch(() => getUserIdFromRid(String(rid)))
-              .catch(console.log)
-              .finally(() => {
-                userId_DONE = true;
-                checkResult();
-              });
-          }
-        }
-      });
-      view.webContents.debugger.sendCommand('Network.enable');
-    }
-
     win.setBrowserView(view);
     view.setBounds({ x: 0, y: 45, width: 800, height: 555 });
     view.setAutoResize({ width: true, height: true });
@@ -153,6 +120,11 @@ function createWindow() {
               const cookitItem = res.find((item) => item.name === 'MUSIC_U');
               if (cookitItem) {
                 MUSIC_U = cookitItem.value;
+                getUserIdFromMUSIC_U(MUSIC_U).then((id) => {
+                  userId = id;
+                  userId_DONE = true;
+                  checkResult();
+                });
               }
             }
           })
@@ -161,10 +133,6 @@ function createWindow() {
             checkResult();
           });
     });
-    // view.webContents.on('did-start-loading', () => {
-
-    // });
-    attachDebugger();
     view.webContents.loadURL('https://music.163.com/#/login');
   });
 
