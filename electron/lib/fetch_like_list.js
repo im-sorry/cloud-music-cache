@@ -7,6 +7,11 @@ async function getLikeIdsSet(uid, MUSIC_U) {
     cookie: `MUSIC_U=${MUSIC_U}`,
   }).catch(err => {
     console.log(err, 'err');
+    return {
+      body: {
+        ids: [],
+      }
+    }
   })
   const ids = respose.body.ids;
   return new Set(ids);

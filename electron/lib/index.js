@@ -1,12 +1,9 @@
 const { decodeFile } = require("./transfer");
 const fs = require('fs')
-const nodeScheduler = require('node-schedule');
 const path = require('path')
 const copy = require('./copy');
 const { getLikeIdsSet } = require('./fetch_like_list');
 const { getIdFromFilename, makeSureDir } = require('./utils');
-
-const 黑名单 = []//['1359156131', '1321602273']
 
 function getOldfiles(output, output_like) {
   const dirs = [output, output_like]
@@ -20,7 +17,7 @@ async function main(output, output_like, src_dir, uid, MUSIC_U) {
   makeSureDir(output);
   makeSureDir(output_like);
   const oldfiles = getOldfiles(output, output_like);
-  const existedMusicIdSet = new Set(oldfiles.map(getIdFromFilename).concat(黑名单))
+  const existedMusicIdSet = new Set(oldfiles.map(getIdFromFilename))
   const files = fs
     .readdirSync(src_dir)
     .filter(filename => /\.uc!?/.test(filename))
@@ -50,18 +47,18 @@ function getNowAt() {
 }
 
 function startCache(src_dir, target_dir, minute, uid, MUSIC_U) {
+  if (typeof minute !== 'number' || !minute) minute = 2;
+
   let nowAt = getNowAt();
-  const timer = `*/${minute} * * * *`;
   const cb = () => {
     const now = getNowAt();
     console.log(`----------------${now-nowAt}s`);
     nowAt = now;
     main(path.join(target_dir, 'dislike'), path.join(target_dir, 'like'), src_dir, uid, MUSIC_U);
-  }
-  const job = nodeScheduler.scheduleJob(timer, cb);
-  return () => {
-    nodeScheduler.cancelJob(job)
-  }
+  };
+
+  const timer = setInterval(cb, minute * 60 * 1000);
+  return () => clearInterval(timer);
 }
 
 module.exports = startCache;
