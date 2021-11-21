@@ -1,0 +1,26 @@
+.cache {
+  min-width: 600px;
+  .desc {
+    color: #ffa600;
+    text-align: left;
+    position: absolute;
+    top: 0px;
+    left: 100%;
+    white-space: nowrap;
+    animation: scroll 30s linear infinite;
+    &:hover {
+      animation-play-state: paused;
+    }
+  }
+  .table-content {
+    display: flex;
+  }
+}
+@keyframes scroll {
+  0% {
+    left: 100%;
+  }
+  100% {
+    left: -1635px;
+  }
+}
