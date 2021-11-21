@@ -39,7 +39,7 @@ function App() {
           </Menu.Item>
         </Menu>
       </div>
-      <div className="content flex-center">
+      <div className="content">
         <Outlet />
       </div>
     </div>

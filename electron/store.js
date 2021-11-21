@@ -33,10 +33,10 @@ const getLocalVals = () => {
   let {
     src_dir,
     target_dir,
-    minute,
     MUSIC_U = '',
     userId = 0,
     diff = false,
+    ...rest
   } = store.get(StorageKey, defaultStore);
   if (!src_dir) src_dir = defaultStore.src_dir;
   else if (!checkDirUseful(src_dir)) src_dir = '';
@@ -45,10 +45,10 @@ const getLocalVals = () => {
   return {
     src_dir,
     target_dir,
-    minute,
     MUSIC_U,
     userId,
     diff,
+    ...rest,
   };
 };
 

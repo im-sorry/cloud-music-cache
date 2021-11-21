@@ -21,7 +21,12 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "noImplicitOverride": true,                  /* Ensure overriding members in derived classes are marked with an 'override' modifier. */
-    "typeRoots": ["@types", "types"]
+    "typeRoots": ["@types", "src/typings"],
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ],
+    }
   },
   "include": [
     "src"

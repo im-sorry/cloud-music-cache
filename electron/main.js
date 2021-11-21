@@ -136,6 +136,14 @@ function createWindow() {
     view.webContents.loadURL('https://music.163.com/#/login');
   });
 
+  // 设置窗口代大小
+  ipcMain.on('window:resize', (_e, width, height) => {
+    win.setSize(width, height, true);
+  });
+  ipcMain.on('window:recovery', () => {
+    win.setSize(800, 530, true);
+  });
+
   ipcMain.on('rendered', () => {
     console.log('成功渲染');
   });

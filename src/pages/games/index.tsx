@@ -10,11 +10,6 @@ const gameList = [
     path: 'puzzle',
     img: puzzle,
   },
-  {
-    name: '数字拼图',
-    path: 'puzzle',
-    img: puzzle,
-  },
 ];
 
 export default function GameHall() {
@@ -28,6 +23,7 @@ export default function GameHall() {
           onClick={() => {
             navigate(`/${path}`);
           }}
+          key={name}
         >
           <div className="img-wrapper">
             <img src={img} alt="" />
