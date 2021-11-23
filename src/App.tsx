@@ -15,6 +15,7 @@ function App() {
 
   useEffect(() => {
     navigate('/cache');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

@@ -15,7 +15,7 @@ import {
 import RankComponent from './components/rank';
 import electron from '../../electron';
 import Rank from '../../utils/rank';
-import { RankItem } from '@/typings/rank';
+import { getSecondTs } from '../../utils/time';
 
 import './puzzle.less';
 
@@ -99,7 +99,9 @@ export default function Puzzle() {
     KeyboardDirection.none
   );
   const [isSuccess, setIsSuccess] = useState(false);
-  const [rankList, setRankList] = useState<RankItem[]>([]);
+  const [duration, setDuration] = useState(0);
+  const [updateRank, setUpdateRank] = useState(false);
+  const timeCounter = useRef(0);
 
   const anchor = useRef({ x: 0, y: 0 });
 
@@ -143,10 +145,22 @@ export default function Puzzle() {
           break;
       }
       if (checkSuccess(matrix, width)) {
+        const now = getSecondTs();
+        const duration = now - timeCounter.current;
+        Rank.addRank(
+          {
+            duration,
+            ts: now,
+          },
+          'duration',
+          name
+        );
+        setUpdateRank(!updateRank);
+        setDuration(duration);
         setIsSuccess(true);
       }
     },
-    [isStarted, matrix, width, isSuccess]
+    [isStarted, matrix, width, isSuccess, updateRank]
   );
 
   const handleStart = () => {
@@ -168,6 +182,7 @@ export default function Puzzle() {
 
     setMatrix(randomSort(matrix, width));
     setIsSuccess(false);
+    timeCounter.current = getSecondTs();
     for (let i = 0; i < width; i++) {
       for (let j = 0; j < width; j++) {
         if (matrix[i][j] === 0) {
@@ -201,8 +216,6 @@ export default function Puzzle() {
   }, [handleDirectionKeyClick]);
   useEffect(() => {
     electron.ipcRenderer.send('window:resize', 1000, 750);
-    Rank.gameName = name;
-    setRankList(Rank.getRankList());
     return () => {
       electron.ipcRenderer.send('window:recovery');
     };
@@ -232,6 +245,7 @@ export default function Puzzle() {
       );
       return prev;
     }, [] as any);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(matrix), width, matrix]);
 
   const computeDirectionKeyClassName = (
@@ -256,7 +270,7 @@ export default function Puzzle() {
 
   return (
     <div className="puzzle">
-      <RankComponent className="rank" list={rankList} gameName={name} />
+      <RankComponent className="rank" gameName={name} update={updateRank} />
       <div className="tool-bar">
         <Select
           style={{ width: 100, marginRight: 5 }}
@@ -287,7 +301,9 @@ export default function Puzzle() {
         className="puzzle-wrapper"
         style={{ width: GameWidth, height: GameWidth }}
       >
-        {isSuccess && <div className="success flex-center">完成💐💐💐</div>}
+        {isSuccess && (
+          <div className="success flex-center">完成({duration}秒)</div>
+        )}
         {renderMatrix}
       </div>
       <div className="keyboard-flash" style={{ width: GameWidth }}>

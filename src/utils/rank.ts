@@ -18,20 +18,25 @@ export default class Rank {
     gameName = gameName || Rank.gameName;
     if (!gameName) return [];
     const localVals = electron.getLocalVals() as LocalVals;
-    console.log(localVals, 'localvals');
     const { gameRankData = {} } = localVals;
     return gameRankData[gameName] || [];
   }
 
   static addRank(
-    { score = 0, duration = 0 }: RankItem,
+    { score = 0, duration = 0, ts }: RankItem,
     rankBasisPriority: RankBasis = 'duration',
     gameName = ''
   ) {
     gameName = gameName || Rank.gameName;
+    let coefficient = 1;
+
+    if (!ts) return;
     if (!gameName) return;
     if (!score && !duration) return;
-    if (!duration && score) rankBasisPriority = 'score';
+    if (!duration && score) {
+      rankBasisPriority = 'score';
+      coefficient = -1;
+    }
 
     const localVals = electron.getLocalVals() as LocalVals;
     const { gameRankData = { [gameName]: [] } } = localVals;
@@ -40,19 +45,21 @@ export default class Rank {
       gameRankData[gameName].push({
         score,
         duration,
+        ts,
       });
     } else {
       gameRankData[gameName] = [
         {
           score,
           duration,
+          ts,
         },
       ];
     }
-    gameRankData[gameName].sort(
-      (a: any, b: any) => b[rankBasisPriority] - a[rankBasisPriority]
+    gameRankData[gameName] = gameRankData[gameName].sort(
+      (a: any, b: any) =>
+        (a[rankBasisPriority] - b[rankBasisPriority]) * coefficient
     );
-    console.log(gameRankData, 'gameRankData');
     electron.setLocalVals({
       gameRankData,
     });
