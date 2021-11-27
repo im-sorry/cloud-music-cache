@@ -20,6 +20,43 @@ function Cache() {
   const [shouldGetUserInfo, setShould] = useState(false);
 
   useEffect(() => {
+    const onMessage = (message) => {
+      console.log(message, 'message');
+    };
+    window.onmessage = onMessage;
+    return () => {};
+  }, []);
+
+  const onStart = () => {
+    if (shouldGetUserInfo) {
+      const { type, msg, MUSIC_U, userId } =
+        electron.ipcRenderer.sendSync('get_user');
+      if (typeof message[type] === 'function') {
+        message[type](msg);
+      }
+      if (type === 'success') {
+        setMUSIC_U(MUSIC_U);
+        setUserId(userId);
+        setShould(false);
+      }
+      return;
+    }
+    if (!target_dir) {
+      message.warn('请选择存储路径');
+      return;
+    }
+    setIsStart(!isStart);
+    electron.ipcRenderer.send('start', {
+      src_dir,
+      target_dir,
+      minute,
+      isStart: !isStart,
+      MUSIC_U,
+      userId,
+    });
+  };
+
+  useEffect(() => {
     const localvals = electron.getLocalVals();
     const { src_dir, target_dir, minute, diff, MUSIC_U, userId } = localvals;
     setSrcDir(src_dir);
@@ -152,36 +189,7 @@ function Cache() {
               />
             </Item>
           </Form>
-          <Button
-            onClick={() => {
-              if (shouldGetUserInfo) {
-                const { type, msg, MUSIC_U, userId } =
-                  electron.ipcRenderer.sendSync('get_user');
-                if (typeof message[type] === 'function') {
-                  message[type](msg);
-                }
-                if (type === 'success') {
-                  setMUSIC_U(MUSIC_U);
-                  setUserId(userId);
-                  setShould(false);
-                }
-                return;
-              }
-              if (!target_dir) {
-                message.warn('请选择存储路径');
-                return;
-              }
-              setIsStart(!isStart);
-              electron.ipcRenderer.send('start', {
-                src_dir,
-                target_dir,
-                minute,
-                isStart: !isStart,
-                MUSIC_U,
-                userId,
-              });
-            }}
-          >
+          <Button onClick={onStart}>
             {shouldGetUserInfo
               ? '登录网易云获取用户信息'
               : isStart

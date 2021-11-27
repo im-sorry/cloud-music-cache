@@ -66,6 +66,7 @@ function createWindow() {
       if (isStart) {
         removeJobs = startCache(src_dir, target_dir, minute, userId, MUSIC_U);
       }
+      win.webContents.postMessage('Cache-Message', ['123', '456', '789']);
     }
   );
   // 获取网易云用户信息
