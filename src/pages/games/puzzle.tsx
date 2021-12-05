@@ -13,9 +13,9 @@ import {
   RightSquareOutlined,
 } from '@ant-design/icons';
 import RankComponent from './components/rank';
-import electron from '../../electron';
 import Rank from '../../utils/rank';
 import { getSecondTs } from '../../utils/time';
+import { resizeWindow } from './utils';
 
 import './puzzle.less';
 
@@ -215,10 +215,7 @@ export default function Puzzle() {
     };
   }, [handleDirectionKeyClick]);
   useEffect(() => {
-    electron.ipcRenderer.send('window:resize', 1000, 750);
-    return () => {
-      electron.ipcRenderer.send('window:recovery');
-    };
+    return resizeWindow(1000, 750);
   }, []);
   const renderMatrix = useMemo(() => {
     const itemWidth = (GameWidth - 2) / width;

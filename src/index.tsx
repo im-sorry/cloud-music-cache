@@ -8,6 +8,7 @@ import Cache from './pages/cache';
 import Donation from './pages/donation';
 import GameHall from './pages/games';
 import Puzzle from './pages/games/puzzle';
+import Escape from './pages/games/escape';
 
 ReactDOM.render(
   <React.StrictMode>
@@ -18,6 +19,7 @@ ReactDOM.render(
           <Route path="donation" element={<Donation />} />
           <Route path="gamehall" element={<GameHall />} />
           <Route path="puzzle" element={<Puzzle />} />
+          <Route path="escape" element={<Escape />} />
         </Route>
       </Routes>
     </BrowserRouter>

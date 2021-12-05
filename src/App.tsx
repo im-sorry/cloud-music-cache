@@ -20,7 +20,7 @@ function App() {
 
   return (
     <div className="App">
-      <div>
+      <div style={{ height: 50 }}>
         <Menu
           mode="horizontal"
           defaultSelectedKeys={['cache']}

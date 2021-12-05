@@ -56,10 +56,13 @@ export default class Rank {
         },
       ];
     }
-    gameRankData[gameName] = gameRankData[gameName].sort(
-      (a: any, b: any) =>
-        (a[rankBasisPriority] - b[rankBasisPriority]) * coefficient
-    );
+    gameRankData[gameName] = gameRankData[gameName].sort((a: any, b: any) => {
+      if (a[rankBasisPriority] === b[rankBasisPriority]) {
+        return b.ts - a.ts;
+      } else {
+        return (a[rankBasisPriority] - b[rankBasisPriority]) * coefficient;
+      }
+    });
     electron.setLocalVals({
       gameRankData,
     });
